@@ -82,24 +82,23 @@ def main():
                              std=[0.229, 0.224, 0.225]),
     ])
 
-    print("Press 'ctrl+c' to quit the live feed...")
+    print("Press 'q' to quit the process...")
     try:
-        # Initialize pygame mixer.
+        # Initialize pygame mixer
         pygame.mixer.init()
 
-        # Load your 30-second sound.
+        # Load your 30-second sound
         pygame.mixer.music.load(os.path.abspath("alarms/alarm1.mp3"))
 
         # Start playback in a loop (-1 means infinite loop),
-        # then pause immediately so we can unpause when needed.
+        # then pause immediately so we can unpause when needed
         pygame.mixer.music.play(-1)
         pygame.mixer.music.pause()
 
-        # Track whether we're currently paused.
+        # Track alarm state and count of repeated predictions
         alarm_paused = False
+        repeated_prediction_count = 0
 
-        print('Initialized sound mixer, starting loop...')
-        count = 0
         # Run alarm for an hour
         start_time = time.time()
         one_hour = 3600
@@ -113,15 +112,12 @@ def main():
             # Convert BGR (OpenCV) to RGB
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-            # Convert to PIL-like image or just apply transforms directly
-            # 1) Convert numpy array to a PyTorch tensor properly
-            # 2) Transform (resize, normalize, etc.)
-            # Note: We can do this with a transforms.ToPILImage() if desired, or with an "functional" approach.
-            
-            # For simplicity, let's wrap the frame in transforms with a small trick:
+            # Convert to PIL-like image 
+            # 1) Convert numpy array to a PyTorch tensor
             import torchvision.transforms.functional as F
-            frame_pil = F.to_pil_image(frame_rgb)  # Convert array -> PIL
-            input_tensor = transform(frame_pil)    # Apply transforms
+            frame_pil = F.to_pil_image(frame_rgb)
+            # 2) Transform (resize, normalize, etc.)
+            input_tensor = transform(frame_pil)
 
             # Add batch dimension
             input_tensor = input_tensor.unsqueeze(0).to(device)
@@ -141,31 +137,32 @@ def main():
             cv2.imshow('Webcam Feed', frame)
 
             # Check for quit signal
-            # TODO: Doesn't work for some reason?
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 print("Exiting...")
                 break
 
-            # Update alarm state
-            # TODO: Make this logic better
+            # Update prediction count
             if alarm_paused:
                 if pred_class_name == "in_bed":
-                    count += 1
-                    if count >= 3:
-                        # Unpause to resume where we left off.
-                        pygame.mixer.music.unpause()
-                        alarm_paused = False
+                    repeated_prediction_count += 1
                 else:
-                    count = 0
-            elif not alarm_paused:
+                    repeated_prediction_count = 0
+            else: # NOT alarm_paused
                 if pred_class_name == "not_in_bed":
-                    count += 1
-                    if count >= 3:
-                        # Pause playback.
-                        pygame.mixer.music.pause()
-                        alarm_paused = True
+                    repeated_prediction_count += 1
                 else:
-                    count = 0
+                    repeated_prediction_count = 0
+
+            # Update alarm state
+            if repeated_prediction_count >= 3:
+                if alarm_paused:
+                    # Unpause to resume where we left off.
+                    pygame.mixer.music.unpause()
+                    alarm_paused = False
+                elif not alarm_paused:
+                    # Pause playback.
+                    pygame.mixer.music.pause()
+                    alarm_paused = True
 
             # Sleep for 1 second to capture one frame per second
             time.sleep(1)
