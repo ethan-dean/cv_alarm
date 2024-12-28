@@ -70,7 +70,7 @@ Make sure you have the following installed (via `pip install ...` or `conda inst
    - Tweak intervals, add more data, or switch to a different model if desired.
 
 ## Planned Future Updates
--[ ] PyQt Application to make setup more user friendly
--[ ] Allow easy switching between users alarms and models
--[ ] Test more efficient and accurate pretrained models other than shufflenet
--[ ] Research and test system on cheap mini-pc, webcam, and speakers
+- [ ] PyQt Application to make setup more user friendly
+- [ ] Allow easy switching between users alarms and models
+- [ ] Test more efficient and accurate pretrained models other than shufflenet
+- [ ] Research and test system on cheap mini-pc, webcam, and speakers
