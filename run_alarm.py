@@ -96,7 +96,7 @@ def main():
         pygame.mixer.music.pause()
 
         # Track alarm state and count of repeated predictions
-        alarm_paused = False
+        alarm_paused = True
         repeated_prediction_count = 0
 
         # Run alarm for an hour
