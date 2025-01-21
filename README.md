@@ -37,9 +37,9 @@ cv_alarm/
 
 ## Required Packages
 Make sure you have the following installed (via `pip install ...` or `conda install ...`):
-- **pytorch** (pytorch::pytorch)
+- **torch** (pytorch::pytorch)
 - **torchvision** (pytorch::torchvision)
-- **opencv-python** (conda-forge::opencv-python)
+- **opencv-python** (conda-forge::opencv)
 - **pygame** (conda-forge::pygame)
 
 ## How to Use It
