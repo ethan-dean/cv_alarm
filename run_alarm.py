@@ -101,8 +101,8 @@ def main():
 
         # Run alarm for an hour
         start_time = time.time()
-        one_hour = 3600
-        while time.time() - start_time < one_hour:
+        thirty_minutes = 1800
+        while time.time() - start_time < thirty_minutes:
             # Capture frame
             ret, frame = cap.read()
             if not ret:
