@@ -1,6 +1,9 @@
 import cv2
 import time
 import os
+import sys
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+import pygame
 
 def collect_images(
     output_folder,
@@ -21,12 +24,21 @@ def collect_images(
         print("Error: Could not open webcam.")
         return
 
+    # Initialize pygame mixer for beep playback
+    pygame.mixer.init()
+    beep_file = os.path.abspath("alarms/beep.wav")
+    beep_sound = pygame.mixer.Sound(beep_file)
+
     print(f"Starting image collection for folder: {output_folder}")
     print(f"Will capture {num_images} images, every {interval_sec} seconds...")
     print("Press 'q' to quit early (window must be in focus).")
 
     try:
         for i in range(num_images):
+            # Play beep right before taking the photo
+            beep_sound.play()
+            time.sleep(0.3)  # let the beep play before capture
+
             ret, frame = cap.read()
             if not ret:
                 print("Error: Could not read from webcam.")
@@ -46,7 +58,7 @@ def collect_images(
                 print("Quitting early...")
                 break
 
-            # Wait for the interval (2 seconds by default) before taking next picture
+            # Wait for the interval before taking next picture
             time.sleep(interval_sec)
 
     finally:
@@ -56,7 +68,7 @@ def collect_images(
 if __name__ == "__main__":
     # Uncomment one of the two lines below, depending on which set you want to collect:
 
-    time.sleep(10);
+    time.sleep(10)
 
     # Collect images of "in_bed"
     collect_images(
