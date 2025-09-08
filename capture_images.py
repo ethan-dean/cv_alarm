@@ -56,13 +56,14 @@ def collect_images(
 if __name__ == "__main__":
     # Uncomment one of the two lines below, depending on which set you want to collect:
 
-    # Collect images of "in_bed"
     time.sleep(10);
+
+    # Collect images of "in_bed"
     collect_images(
         output_folder="dataset/train/in_bed",
         base_filename="bed",
         num_images=100,
-        interval_sec=2
+        interval_sec=3
     )
 
     # Collect images of "not_in_bed"
@@ -70,5 +71,5 @@ if __name__ == "__main__":
     #     output_folder="dataset/train/not_in_bed",
     #     base_filename="bed",
     #     num_images=100,
-    #     interval_sec=2
+    #     interval_sec=3
     # )

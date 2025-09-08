@@ -48,14 +48,16 @@ def open_camera():
         cap = cv2.VideoCapture(0)
     
     if not cap.isOpened():
-        print("Error: Could not open webcam.")
+        print("Error: Could not open webcam. "
+              "WINDOWS: If the camera exists but won't open, check privacy settings: "
+              "Settings → Privacy & Security → Camera → 'Allow desktop apps to access your camera'.")
     return cap
 
 def main():
     # -----------------------------
     # 1. Load the fine-tuned model
     # -----------------------------
-    pretrained_model_path = os.path.abspath("models/shufflenet_pretrained_weights.pth")
+    pretrained_model_path = os.path.abspath("models/batch16_lr1e-4_imgs220_weights.pth")
     model, device = load_custom_shufflenet(pretrained_model_path, num_classes=2)
 
     # Class names based on folder order in your training data
