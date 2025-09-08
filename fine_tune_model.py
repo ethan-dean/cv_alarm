@@ -140,7 +140,7 @@ if __name__ == "__main__":
     train_shufflenet(
         data_dir="dataset/",
         batch_size=16,
-        learning_rate=1e-3,
+        learning_rate=1e-4,
         num_epochs=5,
         model_save_path="models/shufflenet_pretrained_weights.pth"
     )
