@@ -57,7 +57,7 @@ def main():
     # -----------------------------
     # 1. Load the fine-tuned model
     # -----------------------------
-    pretrained_model_path = os.path.abspath("models/batch16_lr1e-4_imgs220_weights.pth")
+    pretrained_model_path = os.path.abspath("models/shufflenet_pretrained_weights.pth")
     model, device = load_custom_shufflenet(pretrained_model_path, num_classes=2)
 
     # Class names based on folder order in your training data
