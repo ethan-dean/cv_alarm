@@ -1,0 +1,6 @@
+/* Additional custom styles for CV Alarm */
+/* Most styling is handled by Tailwind CSS inline in the HTML */
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+}

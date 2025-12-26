@@ -1,0 +1,26 @@
+[Unit]
+Description=CV Alarm Client
+After=network.target
+
+[Service]
+Type=simple
+User=%USER%
+WorkingDirectory=%INSTALL_PATH%/alarm_client
+Environment="PATH=%INSTALL_PATH%/alarm_client/venv/bin"
+Environment="DISPLAY=:0"
+ExecStart=%INSTALL_PATH%/alarm_client/venv/bin/python main.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=default.target
+
+# Installation Instructions:
+# 1. Copy this file to ~/.config/systemd/user/alarm-client.service
+# 2. Replace %USER% with your username
+# 3. Replace %INSTALL_PATH% with the full path to cv_alarm directory
+# 4. Run: systemctl --user daemon-reload
+# 5. Run: systemctl --user enable alarm-client.service
+# 6. Run: systemctl --user start alarm-client.service
+# 7. Check status: systemctl --user status alarm-client.service
+# 8. View logs: journalctl --user -u alarm-client.service -f

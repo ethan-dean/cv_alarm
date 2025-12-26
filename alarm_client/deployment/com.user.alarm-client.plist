@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.user.alarm-client</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>%INSTALL_PATH%/alarm_client/venv/bin/python</string>
+        <string>%INSTALL_PATH%/alarm_client/main.py</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>%INSTALL_PATH%/alarm_client</string>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>KeepAlive</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>%INSTALL_PATH%/alarm_client/logs/stdout.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>%INSTALL_PATH%/alarm_client/logs/stderr.log</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    </dict>
+</dict>
+</plist>
+
+<!-- Installation Instructions:
+1. Copy this file to ~/Library/LaunchAgents/com.user.alarm-client.plist
+2. Replace %INSTALL_PATH% with the full path to cv_alarm directory
+   (e.g., /Users/ethan/Downloads/Web/cv_alarm)
+3. Load the agent: launchctl load ~/Library/LaunchAgents/com.user.alarm-client.plist
+4. Check status: launchctl list | grep alarm-client
+5. View logs: tail -f %INSTALL_PATH%/alarm_client/logs/alarm_client.log
+6. Unload: launchctl unload ~/Library/LaunchAgents/com.user.alarm-client.plist
+-->
