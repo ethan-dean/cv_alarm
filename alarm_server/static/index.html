@@ -100,12 +100,21 @@
     <div id="alarmScreen" class="hidden">
         <div class="max-w-2xl mx-auto p-4">
             <!-- Header -->
-            <div class="bg-white rounded-lg shadow-sm p-4 mb-4 flex justify-between items-center">
-                <div class="flex items-center">
+            <div class="bg-white rounded-lg shadow-sm p-4 mb-4">
+                <div class="flex justify-between items-center mb-2">
                     <h1 class="text-xl font-semibold">Alarms</h1>
-                    <span class="connection-indicator offline" id="connectionStatus"></span>
+                    <button id="logoutBtn" class="text-blue-500 hover:text-blue-600">Logout</button>
                 </div>
-                <button id="logoutBtn" class="text-blue-500 hover:text-blue-600">Logout</button>
+                <div class="flex gap-4 text-sm text-gray-600">
+                    <div class="flex items-center gap-2">
+                        <span class="connection-indicator offline" id="browserStatus"></span>
+                        <span>Browser</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="connection-indicator offline" id="clientStatus"></span>
+                        <span>Alarm Client</span>
+                    </div>
+                </div>
             </div>
 
             <!-- Alarms List -->

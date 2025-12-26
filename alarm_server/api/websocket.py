@@ -15,10 +15,29 @@ import json
 router = APIRouter()
 
 
+async def notify_browsers_client_status(user_id: int, is_connected: bool):
+    """
+    Notify all browser connections about alarm_client status change.
+
+    Args:
+        user_id: User's ID
+        is_connected: Whether alarm_client is connected
+    """
+    message = {
+        "type": MessageType.CLIENT_STATUS_UPDATE,
+        "data": {
+            "alarm_client_connected": is_connected
+        },
+        "timestamp": datetime.utcnow().isoformat()
+    }
+    await manager.send_to_browsers(message, user_id)
+
+
 @router.websocket("/ws")
 async def websocket_endpoint(
     websocket: WebSocket,
     token: str = Query(...),
+    client_type: str = Query(default="browser"),  # "browser" or "alarm_client"
     db: Session = Depends(get_db)
 ):
     """
@@ -58,10 +77,29 @@ async def websocket_endpoint(
 
     logger.info(f"User {user.username} connected via WebSocket")
 
+    # Store client type in websocket state for tracking
+    websocket.state.client_type = client_type
+    websocket.state.user_id = user.id  # Store for cleanup
+
+    # Register alarm_client connections
+    if client_type == "alarm_client":
+        manager.register_alarm_client(websocket, user.id)
+        logger.info(f"Alarm client connected for user {user.username}")
+        # Notify browsers about alarm client connection
+        await notify_browsers_client_status(user.id, True)
+
     # Send authentication success
+    # If browser, include current alarm client status
+    alarm_client_connected = False
+    if client_type == "browser":
+        # Check if there's an alarm_client connection for this user
+        alarm_client_connected = manager.has_alarm_client(user.id)
+
     await websocket.send_json({
         "type": MessageType.AUTH_SUCCESS,
-        "data": None,
+        "data": {
+            "alarm_client_connected": alarm_client_connected
+        } if client_type == "browser" else None,
         "timestamp": datetime.utcnow().isoformat()
     })
 
@@ -105,13 +143,23 @@ async def websocket_endpoint(
     except Exception as e:
         logger.error(f"WebSocket error for user {user.username}: {e}")
     finally:
+        # Check if this was an alarm_client
+        was_alarm_client = getattr(websocket.state, 'client_type', None) == 'alarm_client'
+        stored_user_id = getattr(websocket.state, 'user_id', user.id)
+
+        # Unregister alarm_client if applicable
+        if was_alarm_client:
+            manager.unregister_alarm_client(websocket, stored_user_id)
+            # Notify browsers that alarm_client disconnected
+            await notify_browsers_client_status(stored_user_id, False)
+
         # Clean up connection
-        manager.disconnect(websocket, user.id)
+        manager.disconnect(websocket, stored_user_id)
 
         # Update connection status
-        connection_status = db.query(ConnectionStatus).filter(ConnectionStatus.user_id == user.id).first()
+        connection_status = db.query(ConnectionStatus).filter(ConnectionStatus.user_id == stored_user_id).first()
         if connection_status:
-            connection_status.is_online = manager.is_user_connected(user.id)
+            connection_status.is_online = manager.is_user_connected(stored_user_id)
             connection_status.last_disconnected = datetime.utcnow()
             db.commit()
 

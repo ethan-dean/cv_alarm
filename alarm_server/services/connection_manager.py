@@ -13,6 +13,8 @@ class ConnectionManager:
         # Map user_id to list of WebSocket connections
         # (A user might have multiple clients connected)
         self.active_connections: Dict[int, List[WebSocket]] = {}
+        # Track which connections are alarm_clients vs browsers
+        self.alarm_client_connections: Dict[int, List[WebSocket]] = {}
 
     async def connect(self, websocket: WebSocket, user_id: int):
         """
@@ -105,6 +107,74 @@ class ConnectionManager:
             Number of active connections
         """
         return len(self.active_connections.get(user_id, []))
+
+    def register_alarm_client(self, websocket: WebSocket, user_id: int):
+        """
+        Register a connection as an alarm_client.
+
+        Args:
+            websocket: WebSocket connection
+            user_id: User's ID
+        """
+        if user_id not in self.alarm_client_connections:
+            self.alarm_client_connections[user_id] = []
+        if websocket not in self.alarm_client_connections[user_id]:
+            self.alarm_client_connections[user_id].append(websocket)
+            logger.info(f"Registered alarm_client for user {user_id}")
+
+    def unregister_alarm_client(self, websocket: WebSocket, user_id: int):
+        """
+        Unregister an alarm_client connection.
+
+        Args:
+            websocket: WebSocket connection
+            user_id: User's ID
+        """
+        if user_id in self.alarm_client_connections:
+            if websocket in self.alarm_client_connections[user_id]:
+                self.alarm_client_connections[user_id].remove(websocket)
+                logger.info(f"Unregistered alarm_client for user {user_id}")
+            # Clean up empty lists
+            if not self.alarm_client_connections[user_id]:
+                del self.alarm_client_connections[user_id]
+
+    def has_alarm_client(self, user_id: int) -> bool:
+        """
+        Check if user has an alarm_client connected.
+
+        Args:
+            user_id: User's ID
+
+        Returns:
+            True if alarm_client is connected, False otherwise
+        """
+        return user_id in self.alarm_client_connections and len(self.alarm_client_connections[user_id]) > 0
+
+    async def send_to_browsers(self, message: dict, user_id: int):
+        """
+        Send a message only to browser connections (not alarm_clients).
+
+        Args:
+            message: Message dictionary to send
+            user_id: User's ID
+        """
+        if user_id not in self.active_connections:
+            return
+
+        alarm_clients = set(self.alarm_client_connections.get(user_id, []))
+        browsers = [ws for ws in self.active_connections[user_id] if ws not in alarm_clients]
+
+        disconnected = []
+        for websocket in browsers:
+            try:
+                await websocket.send_json(message)
+            except Exception as e:
+                logger.error(f"Error sending message to browser: {e}")
+                disconnected.append(websocket)
+
+        # Clean up disconnected websockets
+        for websocket in disconnected:
+            self.disconnect(websocket, user_id)
 
 
 # Global connection manager instance

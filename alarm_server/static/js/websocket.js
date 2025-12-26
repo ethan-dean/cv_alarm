@@ -23,7 +23,7 @@ class WebSocketClient {
             this.isConnected = true;
             this.reconnectAttempts = 0;
             this.reconnectDelay = 1000;
-            updateConnectionStatus(true);
+            updateBrowserStatus(true);  // Browser is connected
             this.startHeartbeat();
         };
 
@@ -38,7 +38,7 @@ class WebSocketClient {
         this.ws.onclose = () => {
             console.log('WebSocket disconnected');
             this.isConnected = false;
-            updateConnectionStatus(false);
+            updateBrowserStatus(false);  // Browser is disconnected
             this.stopHeartbeat();
             this.attemptReconnect();
         };
@@ -51,7 +51,7 @@ class WebSocketClient {
         }
         this.stopHeartbeat();
         this.isConnected = false;
-        updateConnectionStatus(false);
+        updateBrowserStatus(false);
     }
 
     send(message) {
@@ -67,11 +67,24 @@ class WebSocketClient {
 
         switch (message.type) {
             case 'AUTH_SUCCESS':
+                // Update alarm client status from initial connection
+                if (message.data && 'alarm_client_connected' in message.data) {
+                    updateClientStatus(message.data.alarm_client_connected);
+                }
                 // Request current state after successful authentication
                 this.send({
                     type: 'REQUEST_STATE',
                     timestamp: new Date().toISOString()
                 });
+                break;
+
+            case 'CLIENT_STATUS_UPDATE':
+                // Server notified us about alarm client status change
+                if (message.data && 'alarm_client_connected' in message.data) {
+                    updateClientStatus(message.data.alarm_client_connected);
+                    const status = message.data.alarm_client_connected ? 'connected' : 'disconnected';
+                    showToast(`Alarm client ${status}`);
+                }
                 break;
 
             case 'STATE_SYNC':
