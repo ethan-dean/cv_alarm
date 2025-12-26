@@ -24,6 +24,7 @@ class MessageType(str, Enum):
     SET_ALARM = "SET_ALARM"
     DELETE_ALARM = "DELETE_ALARM"
     PONG = "PONG"
+    CLIENT_STATUS_UPDATE = "CLIENT_STATUS_UPDATE"
 
 
 class WebSocketMessage(BaseModel):

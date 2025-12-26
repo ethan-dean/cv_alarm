@@ -107,8 +107,8 @@ class WebSocketClient:
         """Main connection loop with reconnection logic."""
         while self.running:
             try:
-                # Build WebSocket URL with token
-                ws_url = f"{config.VPS_URL}?token={self.token}"
+                # Build WebSocket URL with token and client_type
+                ws_url = f"{config.VPS_URL}?token={self.token}&client_type=alarm_client"
 
                 logger.info(f"Connecting to WebSocket: {ws_url.split('?')[0]}...")
 

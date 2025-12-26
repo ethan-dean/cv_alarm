@@ -144,9 +144,21 @@ function showToast(message) {
     }, 3000);
 }
 
-// Update connection status indicator
-function updateConnectionStatus(isConnected) {
-    const indicator = document.getElementById('connectionStatus');
+// Update browser connection status indicator
+function updateBrowserStatus(isConnected) {
+    const indicator = document.getElementById('browserStatus');
+    if (isConnected) {
+        indicator.classList.remove('offline');
+        indicator.classList.add('online');
+    } else {
+        indicator.classList.remove('online');
+        indicator.classList.add('offline');
+    }
+}
+
+// Update alarm client connection status indicator
+function updateClientStatus(isConnected) {
+    const indicator = document.getElementById('clientStatus');
     if (isConnected) {
         indicator.classList.remove('offline');
         indicator.classList.add('online');
