@@ -12,6 +12,10 @@ class Config:
     DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./database/alarms.db")
     ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:8000").split(",")
 
+    # Port configuration
+    PORT = int(os.getenv("PORT", "5002"))
+    HOST = os.getenv("HOST", "127.0.0.1")  # localhost only, nginx will proxy
+
     # Admin user settings
     ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "admin")
     ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin")
