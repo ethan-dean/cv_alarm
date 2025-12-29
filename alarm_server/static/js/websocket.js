@@ -78,6 +78,17 @@ class WebSocketClient {
                 });
                 break;
 
+            case 'AUTH_FAILED':
+                // Token expired or invalid - logout user
+                console.error('Authentication failed:', message.data?.reason);
+                showToast('Session expired. Please log in again.');
+                this.disconnect();
+                // Trigger logout (defined in app.js)
+                if (typeof handleLogout === 'function') {
+                    handleLogout();
+                }
+                break;
+
             case 'CLIENT_STATUS_UPDATE':
                 // Server notified us about alarm client status change
                 if (message.data && 'alarm_client_connected' in message.data) {

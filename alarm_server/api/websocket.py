@@ -51,6 +51,12 @@ async def websocket_endpoint(
     # Authenticate user via token
     token_data = decode_access_token(token)
     if not token_data:
+        await websocket.accept()
+        await websocket.send_json({
+            "type": MessageType.AUTH_FAILED,
+            "data": {"reason": "Invalid or expired token"},
+            "timestamp": datetime.utcnow().isoformat()
+        })
         await websocket.close(code=1008, reason="Invalid authentication token")
         logger.warning("WebSocket connection rejected: Invalid token")
         return
@@ -58,6 +64,12 @@ async def websocket_endpoint(
     # Get user from database
     user = db.query(User).filter(User.id == token_data.user_id).first()
     if not user:
+        await websocket.accept()
+        await websocket.send_json({
+            "type": MessageType.AUTH_FAILED,
+            "data": {"reason": "User not found"},
+            "timestamp": datetime.utcnow().isoformat()
+        })
         await websocket.close(code=1008, reason="User not found")
         logger.warning(f"WebSocket connection rejected: User {token_data.user_id} not found")
         return

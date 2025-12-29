@@ -13,6 +13,20 @@ const state = {
 const API_BASE = window.location.origin;
 const API_URL = `${API_BASE}/api`;
 
+// API helper function with auth error handling
+async function apiRequest(url, options = {}) {
+    const response = await fetch(url, options);
+
+    // Check for 401 Unauthorized (token expired)
+    if (response.status === 401) {
+        showToast('Session expired. Please log in again.');
+        handleLogout();
+        throw new Error('Authentication failed');
+    }
+
+    return response;
+}
+
 // Initialize application
 document.addEventListener('DOMContentLoaded', () => {
     // Check for existing token
@@ -101,7 +115,7 @@ function handleLogout() {
 // Alarm CRUD operations
 async function loadAlarms() {
     try {
-        const response = await fetch(`${API_URL}/alarms`, {
+        const response = await apiRequest(`${API_URL}/alarms`, {
             headers: {
                 'Authorization': `Bearer ${state.token}`
             }
@@ -114,14 +128,16 @@ async function loadAlarms() {
         state.alarms = await response.json();
         renderAlarms();
     } catch (error) {
-        showToast('Failed to load alarms');
+        if (error.message !== 'Authentication failed') {
+            showToast('Failed to load alarms');
+        }
         console.error(error);
     }
 }
 
 async function createAlarm(alarmData) {
     try {
-        const response = await fetch(`${API_URL}/alarms`, {
+        const response = await apiRequest(`${API_URL}/alarms`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -139,14 +155,16 @@ async function createAlarm(alarmData) {
         renderAlarms();
         showToast('Alarm created');
     } catch (error) {
-        showToast('Failed to create alarm');
+        if (error.message !== 'Authentication failed') {
+            showToast('Failed to create alarm');
+        }
         console.error(error);
     }
 }
 
 async function updateAlarm(alarmId, alarmData) {
     try {
-        const response = await fetch(`${API_URL}/alarms/${alarmId}`, {
+        const response = await apiRequest(`${API_URL}/alarms/${alarmId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -167,7 +185,9 @@ async function updateAlarm(alarmId, alarmData) {
         renderAlarms();
         showToast('Alarm updated');
     } catch (error) {
-        showToast('Failed to update alarm');
+        if (error.message !== 'Authentication failed') {
+            showToast('Failed to update alarm');
+        }
         console.error(error);
     }
 }
@@ -178,7 +198,7 @@ async function deleteAlarm(alarmId) {
     }
 
     try {
-        const response = await fetch(`${API_URL}/alarms/${alarmId}`, {
+        const response = await apiRequest(`${API_URL}/alarms/${alarmId}`, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${state.token}`
@@ -193,14 +213,16 @@ async function deleteAlarm(alarmId) {
         renderAlarms();
         showToast('Alarm deleted');
     } catch (error) {
-        showToast('Failed to delete alarm');
+        if (error.message !== 'Authentication failed') {
+            showToast('Failed to delete alarm');
+        }
         console.error(error);
     }
 }
 
 async function toggleAlarm(alarmId, enabled) {
     try {
-        const response = await fetch(`${API_URL}/alarms/${alarmId}/toggle`, {
+        const response = await apiRequest(`${API_URL}/alarms/${alarmId}/toggle`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
@@ -220,7 +242,9 @@ async function toggleAlarm(alarmId, enabled) {
         }
         renderAlarms();
     } catch (error) {
-        showToast('Failed to toggle alarm');
+        if (error.message !== 'Authentication failed') {
+            showToast('Failed to toggle alarm');
+        }
         console.error(error);
     }
 }
