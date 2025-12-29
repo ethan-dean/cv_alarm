@@ -33,7 +33,7 @@ This system extends the CV alarm project with remote management capabilities:
               │ WebSocket (WSS)
               ▼
 ┌─────────────────────────────────────┐
-│     Local Computer (Your Mac)       │
+│     Local Computer                 │
 │  ┌──────────────────────────────┐  │
 │  │  Alarm Client                │  │
 │  │  - WebSocket Client          │  │
@@ -308,7 +308,8 @@ Open https://your-domain.com in your browser
 - Comprehensive logging
 
 ### Security
-- JWT authentication
+- JWT authentication with 31-day expiration
+- Automatic logout on token expiration
 - TLS/SSL encryption (WSS)
 - Password hashing (bcrypt)
 - Input validation
@@ -392,11 +393,20 @@ rm /tmp/cv_alarm.lock
 # Check that client authenticated successfully
 grep "Authentication successful" logs/alarm_client.log
 
-# Verify token hasn't expired (24 hours)
+# Verify token hasn't expired (31 days)
 # Restart client to get new token
 launchctl unload ~/Library/LaunchAgents/com.user.alarm-client.plist
 launchctl load ~/Library/LaunchAgents/com.user.alarm-client.plist
 ```
+
+### Session Expired / Automatic Logout
+
+**Web UI automatically logs out after 31 days:**
+- JWT tokens expire after 31 days for security
+- When token expires, you'll see "Session expired. Please log in again." toast message
+- Both WebSocket and REST API calls are protected
+- Simply log in again to continue using the application
+- The alarm_client will continue running with its own token
 
 ## Advanced Configuration
 

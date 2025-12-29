@@ -22,7 +22,7 @@ class Config:
 
     # JWT settings
     JWT_ALGORITHM = "HS256"
-    JWT_EXPIRATION_HOURS = 24
+    JWT_EXPIRATION_HOURS = 744  # 31 days
 
 
 config = Config()
