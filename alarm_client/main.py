@@ -30,6 +30,15 @@ class AlarmClient:
         logger.info(f"Timezone: {config.TIMEZONE}")
         logger.info(f"CV Alarm Root: {config.CV_ALARM_ROOT}")
 
+        # Clean up any stale lock file from previous run
+        import os
+        if os.path.exists(config.LOCK_FILE_PATH):
+            try:
+                os.remove(config.LOCK_FILE_PATH)
+                logger.info(f"Removed stale lock file: {config.LOCK_FILE_PATH}")
+            except Exception as e:
+                logger.warning(f"Failed to remove lock file: {e}")
+
         # Initialize alarm runner
         self.alarm_runner = AlarmRunner(
             on_triggered=self.on_alarm_triggered,
