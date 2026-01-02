@@ -12,9 +12,10 @@ Set objFSO = CreateObject("Scripting.FileSystemObject")
 installPath = "C:\Users\YourName\cv_alarm\alarm_client"
 
 ' Build the command
-pythonExe = installPath & "\venv\Scripts\python.exe"
+pythonExe = installPath & "\venv\Scripts\pythonw.exe"
 mainScript = installPath & "\main.py"
 logFile = installPath & "\vbscript_startup.log"
+errorLog = installPath & "\logs\alarm_client_error.log"
 
 ' Log startup attempt
 Set objLog = objFSO.OpenTextFile(logFile, 8, True)
@@ -35,9 +36,17 @@ If Not objFSO.FileExists(mainScript) Then
     WScript.Quit 1
 End If
 
-' Change to the correct directory and run
-objShell.CurrentDirectory = installPath
-objShell.Run """" & pythonExe & """ """ & mainScript & """", 0, False
+' Ensure logs directory exists
+If Not objFSO.FolderExists(installPath & "\logs") Then
+    objFSO.CreateFolder(installPath & "\logs")
+End If
+
+' Build command with explicit working directory change
+' Use cmd.exe to change directory first, then run Python
+command = "cmd.exe /c cd /d """ & installPath & """ && """ & pythonExe & """ main.py 2>> """ & errorLog & """"
+
+objLog.WriteLine "Command: " & command
+objShell.Run command, 0, False
 
 If Err.Number <> 0 Then
     objLog.WriteLine "ERROR: " & Err.Description
