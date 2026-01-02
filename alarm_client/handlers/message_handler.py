@@ -26,7 +26,7 @@ class MessageHandler:
         message_type = message.get("type")
         data = message.get("data")
 
-        logger.debug(f"Handling message type: {message_type}")
+        logger.info(f"Received message: {message_type}")
 
         if message_type == "AUTH_SUCCESS":
             self.handle_auth_success(data)

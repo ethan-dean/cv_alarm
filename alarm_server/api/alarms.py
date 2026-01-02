@@ -2,10 +2,12 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
+from datetime import datetime
 from database.database import get_db
 from database.models import User
 from schemas.alarm import AlarmCreate, AlarmUpdate, AlarmResponse, AlarmToggle
 from services import alarm_service
+from services.connection_manager import manager
 from api.auth import get_current_user
 from utils.logger import logger
 
@@ -61,7 +63,7 @@ def get_alarm(
 
 
 @router.post("", response_model=AlarmResponse, status_code=status.HTTP_201_CREATED)
-def create_alarm(
+async def create_alarm(
     alarm_data: AlarmCreate,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -80,14 +82,19 @@ def create_alarm(
     alarm = alarm_service.create_alarm(db, alarm_data, current_user.id)
     logger.info(f"User {current_user.username} created alarm {alarm.id}: {alarm.time}")
 
-    # TODO: Send WebSocket message to connected clients
-    # This will be implemented in the WebSocket module
+    # Send WebSocket message to connected clients
+    alarm_response = AlarmResponse.from_orm(alarm)
+    await manager.send_message({
+        "type": "SET_ALARM",
+        "data": alarm_response.dict(),
+        "timestamp": datetime.utcnow().isoformat()
+    }, current_user.id)
 
-    return AlarmResponse.from_orm(alarm)
+    return alarm_response
 
 
 @router.put("/{alarm_id}", response_model=AlarmResponse)
-def update_alarm(
+async def update_alarm(
     alarm_id: int,
     alarm_data: AlarmUpdate,
     current_user: User = Depends(get_current_user),
@@ -117,13 +124,19 @@ def update_alarm(
 
     logger.info(f"User {current_user.username} updated alarm {alarm.id}")
 
-    # TODO: Send WebSocket message to connected clients
+    # Send WebSocket message to connected clients
+    alarm_response = AlarmResponse.from_orm(alarm)
+    await manager.send_message({
+        "type": "SET_ALARM",
+        "data": alarm_response.dict(),
+        "timestamp": datetime.utcnow().isoformat()
+    }, current_user.id)
 
-    return AlarmResponse.from_orm(alarm)
+    return alarm_response
 
 
 @router.patch("/{alarm_id}/toggle", response_model=AlarmResponse)
-def toggle_alarm(
+async def toggle_alarm(
     alarm_id: int,
     toggle_data: AlarmToggle,
     current_user: User = Depends(get_current_user),
@@ -153,13 +166,19 @@ def toggle_alarm(
 
     logger.info(f"User {current_user.username} {'enabled' if toggle_data.enabled else 'disabled'} alarm {alarm.id}")
 
-    # TODO: Send WebSocket message to connected clients
+    # Send WebSocket message to connected clients
+    alarm_response = AlarmResponse.from_orm(alarm)
+    await manager.send_message({
+        "type": "SET_ALARM",
+        "data": alarm_response.dict(),
+        "timestamp": datetime.utcnow().isoformat()
+    }, current_user.id)
 
-    return AlarmResponse.from_orm(alarm)
+    return alarm_response
 
 
 @router.delete("/{alarm_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_alarm(
+async def delete_alarm(
     alarm_id: int,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -184,6 +203,11 @@ def delete_alarm(
 
     logger.info(f"User {current_user.username} deleted alarm {alarm_id}")
 
-    # TODO: Send WebSocket message to connected clients
+    # Send WebSocket message to connected clients
+    await manager.send_message({
+        "type": "DELETE_ALARM",
+        "data": {"id": alarm_id},
+        "timestamp": datetime.utcnow().isoformat()
+    }, current_user.id)
 
     return None
