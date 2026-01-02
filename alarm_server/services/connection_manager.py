@@ -62,10 +62,14 @@ class ConnectionManager:
             return
 
         # Send to all connections for this user
+        connection_count = len(self.active_connections[user_id])
+        logger.info(f"Sending {message.get('type')} message to {connection_count} connection(s) for user {user_id}")
+
         disconnected = []
         for websocket in self.active_connections[user_id]:
             try:
                 await websocket.send_json(message)
+                logger.info(f"Successfully sent {message.get('type')} to websocket")
             except Exception as e:
                 logger.error(f"Error sending message to websocket: {e}")
                 disconnected.append(websocket)
