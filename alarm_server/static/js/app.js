@@ -150,9 +150,7 @@ async function createAlarm(alarmData) {
             throw new Error('Failed to create alarm');
         }
 
-        const newAlarm = await response.json();
-        state.alarms.push(newAlarm);
-        renderAlarms();
+        // Don't manually update state - let WebSocket handle it
         showToast('Alarm created');
     } catch (error) {
         if (error.message !== 'Authentication failed') {
@@ -177,12 +175,7 @@ async function updateAlarm(alarmId, alarmData) {
             throw new Error('Failed to update alarm');
         }
 
-        const updatedAlarm = await response.json();
-        const index = state.alarms.findIndex(a => a.id === alarmId);
-        if (index !== -1) {
-            state.alarms[index] = updatedAlarm;
-        }
-        renderAlarms();
+        // Don't manually update state - let WebSocket handle it
         showToast('Alarm updated');
     } catch (error) {
         if (error.message !== 'Authentication failed') {
@@ -209,8 +202,7 @@ async function deleteAlarm(alarmId) {
             throw new Error('Failed to delete alarm');
         }
 
-        state.alarms = state.alarms.filter(a => a.id !== alarmId);
-        renderAlarms();
+        // Don't manually update state - let WebSocket handle it
         showToast('Alarm deleted');
     } catch (error) {
         if (error.message !== 'Authentication failed') {
@@ -235,12 +227,7 @@ async function toggleAlarm(alarmId, enabled) {
             throw new Error('Failed to toggle alarm');
         }
 
-        const updatedAlarm = await response.json();
-        const index = state.alarms.findIndex(a => a.id === alarmId);
-        if (index !== -1) {
-            state.alarms[index] = updatedAlarm;
-        }
-        renderAlarms();
+        // Don't manually update state - let WebSocket handle it
     } catch (error) {
         if (error.message !== 'Authentication failed') {
             showToast('Failed to toggle alarm');
