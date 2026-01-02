@@ -36,8 +36,11 @@ class WebSocketClient:
             True if authentication successful, False otherwise
         """
         try:
+            url = f"{config.REST_API_URL}/login"
+            logger.info(f"Authenticating to: {url} with username: {config.USERNAME}")
+
             response = requests.post(
-                f"{config.REST_API_URL}/login",
+                url,
                 json={
                     "username": config.USERNAME,
                     "password": config.PASSWORD
@@ -52,6 +55,7 @@ class WebSocketClient:
                 return True
             else:
                 logger.error(f"Authentication failed: {response.status_code}")
+                logger.error(f"Response body: {response.text}")
                 return False
 
         except Exception as e:
