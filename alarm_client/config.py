@@ -13,8 +13,8 @@ class Config:
     REST_API_URL = os.getenv("REST_API_URL", "http://localhost:8000/api")
 
     # Authentication
-    USERNAME = os.getenv("USERNAME", "admin")
-    PASSWORD = os.getenv("PASSWORD", "admin")
+    USERNAME = os.getenv("ALARM_USERNAME", os.getenv("USERNAME", "admin"))
+    PASSWORD = os.getenv("ALARM_PASSWORD", os.getenv("PASSWORD", "admin"))
 
     # Timezone
     TIMEZONE = os.getenv("TIMEZONE", "America/New_York")

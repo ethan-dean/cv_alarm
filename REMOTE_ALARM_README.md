@@ -185,8 +185,8 @@ VPS_URL=wss://your-domain.com/ws
 REST_API_URL=https://your-domain.com/api
 
 # Authentication
-USERNAME=your_username
-PASSWORD=your_secure_password
+ALARM_USERNAME=your_username
+ALARM_PASSWORD=your_secure_password
 
 # Timezone
 TIMEZONE=America/New_York
