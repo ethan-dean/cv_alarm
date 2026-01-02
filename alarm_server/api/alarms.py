@@ -86,7 +86,7 @@ async def create_alarm(
     alarm_response = AlarmResponse.from_orm(alarm)
     await manager.send_message({
         "type": "SET_ALARM",
-        "data": alarm_response.dict(),
+        "data": alarm_response.model_dump(mode='json'),
         "timestamp": datetime.utcnow().isoformat()
     }, current_user.id)
 
@@ -128,7 +128,7 @@ async def update_alarm(
     alarm_response = AlarmResponse.from_orm(alarm)
     await manager.send_message({
         "type": "SET_ALARM",
-        "data": alarm_response.dict(),
+        "data": alarm_response.model_dump(mode='json'),
         "timestamp": datetime.utcnow().isoformat()
     }, current_user.id)
 
@@ -170,7 +170,7 @@ async def toggle_alarm(
     alarm_response = AlarmResponse.from_orm(alarm)
     await manager.send_message({
         "type": "SET_ALARM",
-        "data": alarm_response.dict(),
+        "data": alarm_response.model_dump(mode='json'),
         "timestamp": datetime.utcnow().isoformat()
     }, current_user.id)
 
